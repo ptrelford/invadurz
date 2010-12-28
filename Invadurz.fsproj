@@ -67,15 +67,10 @@
     <Compile Include="Invadurz.fs" />
     <Compile Include="App.fs" />
     <Content Include="AppManifest.xml" />
-    <EmbeddedResource Include="shoot.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="invaderkilled.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="explosion.mp3">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <Resource Include="GameControl.xaml" />
+    <Content Include="shoot.mp3" />
+    <Content Include="invaderkilled.mp3" />
+    <Content Include="explosion.mp3" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

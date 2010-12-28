@@ -8,6 +8,9 @@ open System.Windows.Threading
 type GameControl () as control =
     inherit UserControl ()
 
+    let uri = Uri("/Invadurz;component/GameControl.xaml", UriKind.Relative)
+    do  Application.LoadComponent(control, uri)
+
     let mutable disposables = []
     let remember disposable = disposables <- disposable :: disposables
     let forget () =
@@ -21,17 +24,17 @@ type GameControl () as control =
     let add (x:#UIElement) = screen.Children.Add x
     let remove (x:#UIElement) = screen.Children.Remove x |> ignore
 
-    let rec playMedia name =
+    let playMedia name =
         let me = MediaElement(AutoPlay=true)
-        me.Source <- Uri(name, UriKind.RelativeOrAbsolute) 
+        me.Source <- Uri(name, UriKind.Relative)
         add me
         me.CurrentStateChanged
         |> Observable.filter (fun _  -> me.CurrentState = Media.MediaElementState.Paused)
         |> Observable.run (fun _ -> remove me)
 
-    let onFire () = playMedia "shoot.mp3"
-    let onKill () = playMedia "invaderkilled.mp3"
-    let onExplode () = playMedia "explosion.mp3"
+    let onFire () = playMedia "/shoot.mp3"
+    let onKill () = playMedia "/invaderkilled.mp3"
+    let onExplode () = playMedia "/explosion.mp3"
 
     let layout = Grid()
     do  layout.Children.Add screen
