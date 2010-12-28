@@ -82,19 +82,37 @@ type GameControl () as control =
         updateScreen ()
         updateScore()
 
+    let isOverrun () = 
+        sheet.Y + sheet.Height >= height ||
+        cannon.IsHit (sheet.X,sheet.Y,sheet.Aliens)
+
     let game () = seq {
         add cannon.Control
         while lives.Value > 0 do
             cannon.Control.Opacity <- 0.5
             for i = 1 to 25 do play() |> ignore; yield ()
             cannon.Control.Opacity <- 1.0
-            while (play(); not (cannon.IsHit bombs) && sheet.Aliens.Length>0) do yield ()
+            while (play(); 
+                    not (cannon.IsHit bombs) && 
+                    not (isOverrun ()) &&
+                    sheet.Aliens.Length>0) do yield ()
             if cannon.IsHit bombs then
                 onExplode ()
                 lives.Value <- lives.Value - 1
                 remove cannon.Control
                 for i = 1 to 25 do updateScreen(); yield ()
                 if lives.Value > 0 then add cannon.Control
+            elif isOverrun() then
+                onExplode ()
+                lives.Value <- lives.Value - 1
+                remove cannon.Control
+                let mess = createMessage "OVERRUN"
+                layout.Children.Add mess
+                for i = 1 to 50 do updateScreen(); yield()
+                layout.Children.Remove mess |> ignore
+                if lives.Value > 0 then 
+                    sheet.Renew()
+                    add cannon.Control
             elif sheet.Aliens.Length = 0 then
                 let mess = createMessage "COMPLETED"
                 layout.Children.Add mess
@@ -132,7 +150,7 @@ type GameControl () as control =
     do  let mess = createMessage "Click to Start"
         layout.Children.Add mess
         control.MouseLeftButtonUp
-        |> Observable.subscribe (fun _ -> 
+        |> Observable.subscribe (fun _ ->
             forget()
             keys.StartListening()
             layout.Children.Remove mess |> ignore

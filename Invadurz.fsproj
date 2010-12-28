@@ -68,7 +68,7 @@
     <Compile Include="App.fs" />
     <Content Include="AppManifest.xml" />
     <EmbeddedResource Include="shoot.mp3">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="invaderkilled.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

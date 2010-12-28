@@ -23,6 +23,10 @@ module Seq =
 type Sprite(element:UIElement,x,y,animation:seq<unit>) =
     let e = animation.GetEnumerator()
     do  Canvas.setPosition element (x,y)
+    let isCollision (x,y,w,h) (x',y',w',h') =
+        let insideX x' = x' >= x && x' < x + w
+        let insideY y' = y' >= y && y' < y + h
+        (insideX x' || insideX (x'+w')) && (insideY y' || insideY (y'+h'))
     new (elements:UIElement seq,x,y,animation) = 
         let canvas = Canvas() 
         let width ,height = 
@@ -45,4 +49,9 @@ type Sprite(element:UIElement,x,y,animation:seq<unit>) =
         let w, h = getWidth element, getHeight element
         x >= x' && x < x' + w &&
         y >= y' && y < y' + h
-        
+    member this.HitTest (originX,originY,sprite:Sprite) =
+        let x, y  = this.X, this.Y
+        let w, h = getWidth element, getHeight element
+        let x', y' = sprite.X + originX, sprite.Y + originY
+        let w', h' = getWidth sprite.Control, getHeight sprite.Control
+        isCollision (x,y,w,h) (x',y',w',h')

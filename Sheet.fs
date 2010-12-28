@@ -85,6 +85,13 @@ type Sheet (container:UIElementCollection,width:float,bombs:Weapons) =
     member this.Aliens= aliens
     member this.X = sheetX
     member this.Y = sheetY
+    member this.Height =
+        match aliens |> Seq.length with
+        | 0 -> 0.0 
+        | _ -> 
+            aliens 
+            |> Seq.map (fun alien -> alien.Y + 24.0)
+            |> Seq.max
     member this.Clean() = 
         direction <- 1.0
         newSheet()
