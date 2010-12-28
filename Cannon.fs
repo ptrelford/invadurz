@@ -2,7 +2,7 @@
 
 open System.Windows.Shapes
 
-type Cannon (width:float, height:float, missiles:Weapons) =
+type Cannon (width:float, height:float, missiles:Weapons, onFire:unit->unit) =
     let cannonWidth = 24.0
     let mutable cannonX, cannonY = 100.0, height-32.0
     let mutable cannonReload = 0
@@ -14,6 +14,7 @@ type Cannon (width:float, height:float, missiles:Weapons) =
         cannon.MoveTo(cannonX,cannonY)
         if cannonReload > 0 then cannonReload <- cannonReload - 1
         if keys.Down Fire && cannonReload = 0 then 
+            onFire()
             let rectangle = Rectangle(Width=2.0,Height=4.0, Fill=whiteBrush)
             let missile = Sprite(rectangle, cannonX, cannonY-4.0,[])
             missiles.Fire(missile, cannonX+10.0,cannonY,-4.0)

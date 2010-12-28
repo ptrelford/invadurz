@@ -21,6 +21,18 @@ type GameControl () as control =
     let add (x:#UIElement) = screen.Children.Add x
     let remove (x:#UIElement) = screen.Children.Remove x |> ignore
 
+    let rec playMedia name =
+        let me = MediaElement(AutoPlay=true)
+        me.Source <- Uri(name, UriKind.RelativeOrAbsolute) 
+        add me
+        me.CurrentStateChanged
+        |> Observable.filter (fun _  -> me.CurrentState = Media.MediaElementState.Paused)
+        |> Observable.run (fun _ -> remove me)
+
+    let onFire () = playMedia "shoot.mp3"
+    let onKill () = playMedia "invaderkilled.mp3"
+    let onExplode () = playMedia "explosion.mp3"
+
     let layout = Grid()
     do  layout.Children.Add screen
     do  control.Content <- layout
@@ -29,7 +41,7 @@ type GameControl () as control =
 
     let particles = Particles(screen.Children)
     let missiles = Weapons(screen.Children,height)
-    let cannon = Cannon(width,height,missiles)
+    let cannon = Cannon(width,height,missiles,onFire)
     let bunkers = Bunkers(screen.Children,width,height)
     let bombs = Weapons(screen.Children,height)
     let sheet = Sheet(screen.Children,width,bombs)
@@ -56,6 +68,7 @@ type GameControl () as control =
         missilesHit |> List.iter (fun missile -> particles.Explode(missile.X,missile.Y))
         missiles.Remove missilesHit
         if invadersHit.Length > 0 then
+            onKill()
             score.Value <- score.Value + invadersHit.Length * 10
 
     let updateScreen () =
@@ -76,7 +89,8 @@ type GameControl () as control =
             for i = 1 to 25 do play() |> ignore; yield ()
             cannon.Control.Opacity <- 1.0
             while (play(); not (cannon.IsHit bombs) && sheet.Aliens.Length>0) do yield ()
-            if cannon.IsHit bombs then 
+            if cannon.IsHit bombs then
+                onExplode ()
                 lives.Value <- lives.Value - 1
                 remove cannon.Control
                 for i = 1 to 25 do updateScreen(); yield ()

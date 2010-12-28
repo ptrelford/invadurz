@@ -63,9 +63,19 @@
     <Compile Include="Cannon.fs" />
     <Compile Include="Particles.fs" />
     <Compile Include="TextValue.fs" />
+    <Compile Include="Observable.fs" />
     <Compile Include="Invadurz.fs" />
     <Compile Include="App.fs" />
     <Content Include="AppManifest.xml" />
+    <EmbeddedResource Include="shoot.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="invaderkilled.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="explosion.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
