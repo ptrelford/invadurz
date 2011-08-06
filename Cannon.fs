@@ -15,14 +15,13 @@ type Cannon (width:float, height:float, missiles:Weapons, onFire:unit->unit) =
         if cannonReload > 0 then cannonReload <- cannonReload - 1
         if keys.Down Fire && cannonReload = 0 then 
             onFire()
-            let rectangle = Rectangle(Width=2.0,Height=4.0, Fill=whiteBrush)
-            let missile = Sprite(rectangle, cannonX, cannonY-4.0, [])
+            let missile = Rectangle(Width=2.0,Height=4.0, Fill=whiteBrush)          
             missiles.Fire(missile, cannonX+10.0,cannonY,-4.0)
-            cannonReload <- 8
+            cannonReload <- 4
 
     member this.Control = cannon.Control
     member this.Update keys = updateCannon keys
     member this.IsHit (bombs:Weapons) =
-        bombs.Items |> Seq.exists (fun (bomb,x,y,_) -> cannon.HitTest(x+1.0,y+6.0))
+        bombs.Items |> Seq.exists (fun (bomb,_,x,y,_) -> cannon.HitTest(x+1.0,y+6.0))
     member this.IsHit (originX, originY, aliens:Sprite seq) =
         aliens |> Seq.exists (fun alien -> cannon.HitTest(originX, originY,alien))

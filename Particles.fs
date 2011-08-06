@@ -4,7 +4,7 @@ open System
 open System.Windows.Controls
 open System.Windows.Shapes
 
-type Particles (container:UIElementCollection) =
+type Particles (container:UIElementCollection, width, height) =
     let mutable particles = []
     let setPositions lines =
         lines |> List.iter (fun (line,x,y,_,_,_) -> Canvas.setPosition line (x,y))
@@ -24,7 +24,11 @@ type Particles (container:UIElementCollection) =
         let alive, dead =
             particles 
             |> List.map (fun (p,x,y,dx,dy,count) -> p,x+dx,y+dy,dx,dy,count-1)
-            |> List.partition (fun (_,_,_,_,_,count) -> count>0)
+            |> List.partition (fun (_,x,y,_,_,count) -> 
+                count > 0 && 
+                x >= 0.0 && x <= width &&
+                y >= 0.0 && y <= height
+            )
         dead |> List.iter (fun (p:Line,_,_,_,_,_) -> container.Remove p |> ignore)
         particles <- alive        
         setPositions particles

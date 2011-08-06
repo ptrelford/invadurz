@@ -74,11 +74,9 @@ type Sheet (container:UIElementCollection,width:float,bombs:Weapons) =
     let fireBombs count =
         aliens |> Seq.iter (fun alien ->
             if rand.Next(count * 16) = 0 then
-                let rectangle = Rectangle(Width=2.0,Height=4.0, Fill=whiteBrush)
-                let lines = 
-                    [0.0,0.0,2.0,2.0;2.0,2.0,0.0,4.0;0.0,4.0,2.0,6.0]
-                    |> List.map (fun (x1,y1,x2,y2) -> Line(X1=x1,Y1=y1,X2=x2,Y2=y2,Stroke=whiteBrush))
-                let bomb = Sprite(lines |> Seq.cast,0.0,0.0,[])
+                let bomb = Polyline(Stroke=whiteBrush)
+                [0.0,0.0;2.0,2.0;0.0,4.0;2.0,6.0]
+                |> List.iter (fun (x,y) -> bomb.Points.Add(Point(x,y)))                                 
                 bombs.Fire(bomb,sheetX + alien.X+12.0,sheetY + alien.Y+12.0,3.0)
         )
 

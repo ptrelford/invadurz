@@ -42,7 +42,7 @@ type GameControl () as control =
 
     let keys = Keys(control.KeyDown,control.KeyUp,remember)
 
-    let particles = Particles(screen.Children)
+    let particles = Particles(screen.Children, width, height)
     let missiles = Weapons(screen.Children,height)
     let cannon = Cannon(width,height,missiles,onFire)
     let bunkers = Bunkers(screen.Children,width,height)
@@ -59,26 +59,31 @@ type GameControl () as control =
     let updateScore () =
         let missilesHit, invadersHit =
             sheet.Aliens |> Seq.fold (fun acc alien ->
-                missiles.Items |> Seq.tryFind (fun (_,x,y,_) ->
+                missiles.Items |> Seq.tryFind (fun (_,_,x,y,_) ->
                     alien.HitTest(x - sheet.X, y - sheet.Y)
                 )
                 |> (function 
-                    | Some (missile,_,_,_) -> (missile,alien)::acc 
+                    | Some (missile,_,x,y,_) -> ((missile,(x,y)),alien)::acc 
                     | None -> acc)
             ) []
             |> List.unzip
         sheet.Remove invadersHit
-        missilesHit |> List.iter (fun missile -> particles.Explode(missile.X,missile.Y))
-        missiles.Remove missilesHit
+        missilesHit |> List.iter (fun (_,(x,y)) -> particles.Explode(x,y))
+        missiles.Remove (missilesHit |> List.map fst)
         if invadersHit.Length > 0 then
             onKill()
             score.Value <- score.Value + invadersHit.Length * 10
 
     let updateScreen () =
+        let start = DateTime.Now
         sheet.Update(lives.Value>0)
         missiles.Update(bunkers.HitTest)
         bombs.Update(bunkers.HitTest)
         particles.Update()
+        #if DEBUG
+        let elapsed = DateTime.Now - start
+        System.Diagnostics.Debug.WriteLine(elapsed.TotalMilliseconds)
+        #endif
 
     let play () =
         keys |> cannon.Update
