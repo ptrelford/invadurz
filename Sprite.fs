@@ -21,6 +21,10 @@ module Seq =
     let yieldFor n = seq { for x = 1 to n do yield () }
 
 type Sprite(element:UIElement,x,y,animation:seq<unit>) =
+    let mutable xx = x
+    let mutable yy = y
+    let mutable width = getWidth element 
+    let mutable height = getHeight element
     let e = animation.GetEnumerator()
     do  Canvas.setPosition element (x,y)
     let isCollision (x,y,w,h) (x',y',w',h') =
@@ -41,17 +45,22 @@ type Sprite(element:UIElement,x,y,animation:seq<unit>) =
     static member toControl (sprite:Sprite) = sprite.Control
     member this.Control = element
     member this.Animate() = e.MoveNext() |> ignore
-    member this.MoveTo (x,y) = Canvas.setPosition element (x,y)
-    member this.X = Canvas.GetLeft(element)
-    member this.Y = Canvas.GetTop(element)
+    member this.MoveTo (x,y) = 
+        xx <- x
+        yy <- y
+        Canvas.setPosition element (x,y)
+    member this.X = xx
+    member this.Y = yy
+    member this.Width = width
+    member this.Height = height
     member this.HitTest(x,y) =
-        let x',y' = this.X, this.Y
-        let w, h = getWidth element, getHeight element
+        let x',y' = xx, yy
+        let w, h = width, height
         x >= x' && x < x' + w &&
         y >= y' && y < y' + h
     member this.HitTest (originX,originY,sprite:Sprite) =
-        let x, y  = this.X, this.Y
-        let w, h = getWidth element, getHeight element
+        let x, y  = xx, yy
+        let w, h = width, height
         let x', y' = sprite.X + originX, sprite.Y + originY
-        let w', h' = getWidth sprite.Control, getHeight sprite.Control
+        let w', h' = sprite.Width, sprite.Height
         isCollision (x,y,w,h) (x',y',w',h')

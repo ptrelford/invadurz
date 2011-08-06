@@ -59,36 +59,36 @@ type GameControl () as control =
     let updateScore () =
         let missilesHit, invadersHit =
             sheet.Aliens |> Seq.fold (fun acc alien ->
-                missiles.Items |> Seq.tryFind (fun (_,_,x,y,_) ->
-                    alien.HitTest(x - sheet.X, y - sheet.Y)
+                missiles.Items |> Seq.tryFind (fun missile ->
+                    alien.HitTest(missile.X - sheet.X, missile.Y - sheet.Y)                    
                 )
                 |> (function 
-                    | Some (missile,_,x,y,_) -> ((missile,(x,y)),alien)::acc 
+                    | Some missile -> (missile,alien)::acc 
                     | None -> acc)
             ) []
             |> List.unzip
         sheet.Remove invadersHit
-        missilesHit |> List.iter (fun (_,(x,y)) -> particles.Explode(x,y))
-        missiles.Remove (missilesHit |> List.map fst)
+        missilesHit |> List.iter (fun (missile) -> particles.Explode(missile.X,missile.Y))
+        missiles.Remove (missilesHit |> List.map (fun missile -> missile.Shape))
         if invadersHit.Length > 0 then
             onKill()
             score.Value <- score.Value + invadersHit.Length * 10
 
-    let updateScreen () =
-        let start = DateTime.Now
+    let updateScreen () =        
         sheet.Update(lives.Value>0)
         missiles.Update(bunkers.HitTest)
         bombs.Update(bunkers.HitTest)
         particles.Update()
+
+    let play () =
+        let start = DateTime.Now
+        keys |> cannon.Update
+        updateScreen ()
+        updateScore()
         #if DEBUG
         let elapsed = DateTime.Now - start
         System.Diagnostics.Debug.WriteLine(elapsed.TotalMilliseconds)
         #endif
-
-    let play () =
-        keys |> cannon.Update
-        updateScreen ()
-        updateScore()
 
     let isOverrun () = 
         sheet.Y + sheet.Height >= height ||
