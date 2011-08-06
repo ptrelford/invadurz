@@ -1,12 +1,11 @@
 ﻿namespace Invadurz
 
-open System
-open System.Windows.Controls
-open System.Windows.Media
-
 [<AutoOpen>]
 module Resources =
+    open System
     open System.Windows
+    open System.Windows.Controls
+    open System.Windows.Media
     let rand = Random()
     let settings = System.IO.IsolatedStorage.IsolatedStorageSettings.ApplicationSettings
     let toGradientStops stops =
@@ -33,5 +32,3 @@ module Resources =
         block.HorizontalAlignment <- HorizontalAlignment.Center
         block.VerticalAlignment <- VerticalAlignment.Center
         block
-
-

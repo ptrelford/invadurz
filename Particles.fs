@@ -6,28 +6,27 @@ open System.Windows.Shapes
 
 type Particles (container:UIElementCollection) =
     let mutable particles = []
-    let explode (x,y) =
-        let boom (dx,dy) = 
-            let line = Line(X1=dx,Y1=dy,X2=0.0,Y2=0.0,Stroke=whiteBrush)
-            let sprite = Sprite(line,x+dx,y+dy,[])
-            (sprite,x,y,dx,dy,100)
-        [1..100] 
-        |> List.map (fun _ ->
+    let setPositions lines =
+        lines |> List.iter (fun (line,x,y,_,_,_) -> Canvas.setPosition line (x,y))
+    let explode (x,y) =        
+        let newTrajectory _ =
             let r = rand.NextDouble() * 2.0 * Math.PI
             let v = 4.0 *  rand.NextDouble() + 2.0
             v * cos r, v * sin r 
-        )
-        |> List.map boom
+        let toLine (dx,dy) = 
+            let line = Line(X1=dx,Y1=dy,X2=0.0,Y2=0.0,Stroke=whiteBrush)            
+            (line,x,y,dx,dy,100)        
+        let explosion = [1..100] |> List.map (newTrajectory >> toLine)
+        setPositions explosion
+        explosion |> List.iter (fun (line,_,_,_,_,_) -> line |> container.Add)
+        particles <- explosion @ particles
     let updateParticles () =
         let alive, dead =
             particles 
             |> List.map (fun (p,x,y,dx,dy,count) -> p,x+dx,y+dy,dx,dy,count-1)
-            |> List.partition (fun (p,x,y,dx,dy,count) -> count>0)
-        dead |> List.iter (fun (p:Sprite,x,y,dx,dy,count) -> container.Remove p.Control |> ignore)
-        particles <- alive
-        particles |> List.iter (fun (p,x,y,_,_,_) -> p.MoveTo(x,y))
+            |> List.partition (fun (_,_,_,_,_,count) -> count>0)
+        dead |> List.iter (fun (p:Line,_,_,_,_,_) -> container.Remove p |> ignore)
+        particles <- alive        
+        setPositions particles
     member thuis.Update() = updateParticles()
-    member this.Explode(x,y) =
-        let fragments = explode(x,y)
-        fragments |> List.iter (fun (sprite,_,_,_,_,_) -> sprite.Control |> container.Add)
-        particles <- particles @ fragments
+    member this.Explode(x,y) = explode (x,y)        

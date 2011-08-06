@@ -22,8 +22,10 @@ type Bunker (x,y) =
     member this.Sprite = sprite
     member this.Busted (x,y,dy) =
         if sprite.HitTest(x,y) then
-            let x = (x - bunkerX) / 2.0 |> int
+            let x = (x - bunkerX) / 2.0 |> int            
             let y = (y - bunkerY) / 2.0 |> int
+            if x<0 || x >= spans.Length then false
+            else
             let s = sign dy |> int
             let top, bot = spans.[x]
             if top <= bot then
@@ -35,5 +37,5 @@ type Bunker (x,y) =
                 spans.[x] <- 
                     if s > 0 then (top+4,bot) else (top,bot-4)
                 true
-            else false
+                else false          
         else false
