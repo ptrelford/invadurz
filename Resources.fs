@@ -7,7 +7,11 @@ module Resources =
     open System.Windows.Controls
     open System.Windows.Media
     let rand = Random()
+    #if SILVERLIGHT
     let settings = System.IO.IsolatedStorage.IsolatedStorageSettings.ApplicationSettings
+    #else
+    let settings = System.Collections.Hashtable()
+    #endif
     let toGradientStops stops =
         let collection = GradientStopCollection()
         stops

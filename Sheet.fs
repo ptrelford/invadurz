@@ -38,7 +38,7 @@ type Sheet (container:UIElementCollection,width:float,bombs:Weapons) =
 
     let createSheetControl() =
         let canvas = Canvas()
-        aliens |> Seq.map Sprite.toControl |> Seq.iter canvas.Children.Add
+        aliens |> Seq.map Sprite.toControl |> Seq.iter (canvas.Children.Add >> ignore)
         Canvas.setPosition canvas (sheetX,sheetY)
         canvas
 
@@ -53,7 +53,7 @@ type Sheet (container:UIElementCollection,width:float,bombs:Weapons) =
     let newSheet () = 
         container.Remove sheet |> ignore
         createSheet()
-        container.Add sheet
+        container.Add sheet |> ignore
 
     let update () =
         let startX, endX, count = 

@@ -7,9 +7,15 @@ open System.Windows.Threading
 
 type GameControl () as control =
     inherit UserControl ()
-
+        
+    #if SILVERLIGHT
     let uri = Uri("/Invadurz;component/GameControl.xaml", UriKind.Relative)
     do  Application.LoadComponent(control, uri)
+    #else // WPF specific workaround for keyboard input
+    do  control.IsTabStop <- true
+    do  control.Focusable <- true
+    do  control.Focus() |> ignore
+    #endif
 
     let mutable disposables = []
     let remember disposable = disposables <- disposable :: disposables
@@ -21,23 +27,29 @@ type GameControl () as control =
     do  control.Width <- width; control.Height <- height
 
     let screen = Canvas(Background=skyBrush)
-    let add (x:#UIElement) = screen.Children.Add x
+    let add (x:#UIElement) = screen.Children.Add x |> ignore
     let remove (x:#UIElement) = screen.Children.Remove x |> ignore
 
     let playMedia name =
+        #if SILVERLIGHT
         let me = MediaElement(AutoPlay=true)
         me.Source <- Uri(name, UriKind.Relative)
         add me
         me.CurrentStateChanged
         |> Observable.filter (fun _  -> me.CurrentState = Media.MediaElementState.Paused)
         |> Observable.run (fun _ -> remove me)
+        #else
+        let player = System.Windows.Media.MediaPlayer()
+        player.Open(Uri(name, UriKind.Relative))
+        player.Play()
+        #endif
 
     let onFire () = playMedia "/shoot.mp3"
     let onKill () = playMedia "/invaderkilled.mp3"
     let onExplode () = playMedia "/explosion.mp3"
 
     let layout = Grid()
-    do  layout.Children.Add screen
+    do  layout.Children.Add screen |> ignore
     do  control.Content <- layout
 
     let keys = Keys(control.KeyDown,control.KeyUp,remember)
@@ -81,14 +93,9 @@ type GameControl () as control =
         particles.Update()
 
     let play () =
-        let start = DateTime.Now
         keys |> cannon.Update
         updateScreen ()
         updateScore()
-        #if DEBUG
-        let elapsed = DateTime.Now - start
-        System.Diagnostics.Debug.WriteLine(elapsed.TotalMilliseconds)
-        #endif
 
     let isOverrun () = 
         sheet.Y + sheet.Height >= height ||
@@ -115,7 +122,7 @@ type GameControl () as control =
                 lives.Value <- lives.Value - 1
                 remove cannon.Control
                 let mess = createMessage "OVERRUN"
-                layout.Children.Add mess
+                layout.Children.Add mess |> ignore
                 for i = 1 to 50 do updateScreen(); yield()
                 layout.Children.Remove mess |> ignore
                 if lives.Value > 0 then 
@@ -123,7 +130,7 @@ type GameControl () as control =
                     add cannon.Control
             elif sheet.Aliens.Length = 0 then
                 let mess = createMessage "COMPLETED"
-                layout.Children.Add mess
+                layout.Children.Add mess |> ignore
                 for i = 1 to 100 do updateScreen(); yield()
                 layout.Children.Remove mess |> ignore
                 sheet.Renew()
@@ -136,7 +143,7 @@ type GameControl () as control =
                 highScore.Value <- score.Value
                 settings.["HighScore"] <- highScore.Value
             let mess = createMessage "GAME OVER"
-            layout.Children.Add mess
+            layout.Children.Add mess |> ignore
             for i = 1 to 100 do updateScreen(); yield()
             while not (keys.Down Fire) do yield()
             layout.Children.Remove mess |> ignore
@@ -156,7 +163,7 @@ type GameControl () as control =
         timer.Start()
 
     do  let mess = createMessage "Click to Start"
-        layout.Children.Add mess
+        layout.Children.Add mess |> ignore
         control.MouseLeftButtonUp
         |> Observable.subscribe (fun _ ->
             forget()

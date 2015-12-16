@@ -18,7 +18,7 @@ type Particles (container:UIElementCollection, width, height) =
             (line,x,y,dx,dy,100)        
         let explosion = [1..100] |> List.map (newTrajectory >> toLine)
         setPositions explosion
-        explosion |> List.iter (fun (line,_,_,_,_,_) -> line |> container.Add)
+        explosion |> List.iter (fun (line,_,_,_,_,_) -> line |> container.Add |> ignore)
         particles <- explosion @ particles
     let updateParticles () =
         let alive, dead =

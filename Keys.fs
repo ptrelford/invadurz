@@ -8,8 +8,8 @@ type Action = Left | Right | Fire
 type Keys (keyDown:IObservable<KeyEventArgs>,keyUp:IObservable<KeyEventArgs>,remember) =
     let mutable actions = set []
     let toAction = function
-        | Key.Z -> Some Left
-        | Key.X -> Some Right
+        | Key.Z | Key.Left -> Some Left
+        | Key.X | Key.Right -> Some Right
         | Key.Space -> Some Fire
         | _ -> None
     let listen() =  

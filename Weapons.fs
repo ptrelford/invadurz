@@ -16,7 +16,7 @@ type Weapon = {
 type Weapons(container:UIElementCollection,height) =
     let mutable weapons = List<_>(capacity=100)
     member this.Fire(shape:Shape,x,y,dy) =        
-        container.Add shape
+        container.Add shape |> ignore
         let transform = TranslateTransform(X=x,Y=y)
         shape.RenderTransform <- transform               
         { Shape=shape; Transform=transform; X=x; Y=y; DY=dy }

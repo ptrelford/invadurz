@@ -3,7 +3,8 @@
 open System.Windows.Controls
 
 type Bunkers (container:UIElementCollection,width,height) =
-    let add,remove = container.Add,(fun item -> container.Remove item |> ignore)
+    let add = container.Add >> ignore
+    let remove = container.Remove >> ignore
     let mutable bunkers = []
     let createBunkers () =
         bunkers <-

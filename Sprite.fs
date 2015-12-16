@@ -40,7 +40,7 @@ type Sprite(element:UIElement,x,y,animation:seq<unit>) =
             ) (0.0,0.0)
         canvas.Width <- width
         canvas.Height <- height
-        elements |> Seq.iter canvas.Children.Add
+        elements |> Seq.iter (canvas.Children.Add >> ignore)
         Sprite(canvas,x,y,animation)
     static member toControl (sprite:Sprite) = sprite.Control
     member this.Control = element

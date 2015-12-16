@@ -33,7 +33,12 @@ type Bunker (x,y) =
                 for i = 0 to 3 do
                     let dy = edge + i * s
                     if dy >= 0 && dy < height then
+                        #if SILVERLIGHT
                         bitmap.Pixels.[x + dy * width] <- 0
+                        #else
+                        let rect = System.Windows.Int32Rect(x,dy,1,1)
+                        bitmap.WritePixels(rect, [|0|], bitmap.BackBufferStride, 0)
+                        #endif
                 spans.[x] <- 
                     if s > 0 then (top+4,bot) else (top,bot-4)
                 true
