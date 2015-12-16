@@ -33,7 +33,7 @@ type GameControl () as control =
     let playMedia name =
         #if SILVERLIGHT
         let me = MediaElement(AutoPlay=true)
-        me.Source <- Uri(name, UriKind.Relative)
+        me.Source <- Uri("/" + name, UriKind.Relative)
         add me
         me.CurrentStateChanged
         |> Observable.filter (fun _  -> me.CurrentState = Media.MediaElementState.Paused)
@@ -44,9 +44,9 @@ type GameControl () as control =
         player.Play()
         #endif
 
-    let onFire () = playMedia "/shoot.mp3"
-    let onKill () = playMedia "/invaderkilled.mp3"
-    let onExplode () = playMedia "/explosion.mp3"
+    let onFire () = playMedia "shoot.mp3"
+    let onKill () = playMedia "invaderkilled.mp3"
+    let onExplode () = playMedia "explosion.mp3"
 
     let layout = Grid()
     do  layout.Children.Add screen |> ignore
