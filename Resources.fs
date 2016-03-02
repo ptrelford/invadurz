@@ -25,11 +25,17 @@ module Resources =
     let whiteBrush = SolidColorBrush Colors.White
     let greenBrush = SolidColorBrush Colors.Green
     let createTextBlock () =
+        let textBlock =
             TextBlock(
                 Foreground=whiteBrush, 
                 FontSize=15.0, 
-                FontWeight=FontWeights.ExtraBold,
-                Effect=Effects.BlurEffect(Radius=10.0/3.0))
+                FontWeight=FontWeights.ExtraBold)
+        #if WP7
+        #else
+        textBlock.Effect <- Effects.BlurEffect(Radius=10.0/3.0)
+        #endif
+        textBlock
+
     let createMessage s =
         let block = createTextBlock()
         block.Text <- s
