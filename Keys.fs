@@ -24,6 +24,26 @@ type Keys (keyDown:IObservable<KeyEventArgs>,keyUp:IObservable<KeyEventArgs>,rem
             actions <- Set.remove action actions)
         |> remember
     member this.StartListening () = listen()
-    member this.Down action =
-        actions.Contains action
+    member this.Actions = actions
+
+type Mouse (buttonDown:IObservable<MouseButtonEventArgs>,buttonUp:IObservable<MouseButtonEventArgs>,remember) =
+    let mutable actions = set []
+    let mutable position = None
+    let listen() = 
+        buttonDown        
+        |> Observable.subscribe(fun args -> 
+            position <- Some(args.GetPosition(null))
+            actions <- Set.add Fire actions)
+        |> remember
+        buttonUp        
+        |> Observable.subscribe (fun _ -> 
+            position <- None
+            actions <- Set.remove Fire actions)            
+        |> remember
+    member this.StartListening () = listen()
+    member this.Actions (x) = 
+        match position with
+        | Some(point) when x < point.X -> actions |> Set.add Right
+        | Some(point) when x > point.X -> actions |> Set.add Left
+        | _ -> actions
 

@@ -53,6 +53,7 @@ type GameControl () as control =
     do  control.Content <- layout
 
     let keys = Keys(control.KeyDown,control.KeyUp,remember)
+    let mouse = Mouse(control.MouseLeftButtonDown, control.MouseLeftButtonUp, remember)
 
     let particles = Particles(screen.Children, width, height)
     let missiles = Weapons(screen.Children,height)
@@ -92,8 +93,11 @@ type GameControl () as control =
         bombs.Update(bunkers.HitTest)
         particles.Update()
 
+    let getActions () =
+        keys.Actions + mouse.Actions cannon.X
+
     let play () =
-        keys |> cannon.Update
+        getActions() |> cannon.Update
         updateScreen ()
         updateScore()
 
@@ -145,7 +149,7 @@ type GameControl () as control =
             let mess = createMessage "GAME OVER"
             layout.Children.Add mess |> ignore
             for i = 1 to 100 do updateScreen(); yield()
-            while not (keys.Down Fire) do yield()
+            while not (getActions() |> Set.contains Fire) do yield()
             layout.Children.Remove mess |> ignore
             bunkers.Reset ()
             lives.Value <- 3
@@ -168,6 +172,7 @@ type GameControl () as control =
         |> Observable.subscribe (fun _ ->
             forget()
             keys.StartListening()
+            mouse.StartListening()
             layout.Children.Remove mess |> ignore
             startGame() 
         )
