@@ -11,9 +11,9 @@
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{f2a71f9b-5d33-465a-a702-920d77279786}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <RootNamespace>Invadurz</RootNamespace>
-    <AssemblyName>Invadurz.WP7.App</AssemblyName>
+    <AssemblyName>Invadurz</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>Invadurz.WP7.App</Name>
+    <Name>Invadurz</Name>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <TargetFrameworkProfile>WindowsPhone</TargetFrameworkProfile>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
@@ -65,9 +65,8 @@
     <Compile Include="TextValue.fs" />
     <Compile Include="Observable.fs" />
     <Compile Include="Invadurz.fs" />
-    <Resource Include="GameControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
+    <Resource Include="MainPage.xaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Compile Include="App.WP7.fs" />
     <Content Include="shoot.mp3">

@@ -9,8 +9,11 @@ type GameControl () as control =
     inherit UserControl ()
         
     #if SILVERLIGHT
+    #if WP7
+    #else
     let uri = Uri("/Invadurz;component/GameControl.xaml", UriKind.Relative)
     do  Application.LoadComponent(control, uri)
+    #endif
     #else // WPF specific workaround for keyboard input
     do  control.IsTabStop <- true
     do  control.Focusable <- true
@@ -53,7 +56,7 @@ type GameControl () as control =
     do  control.Content <- layout
 
     let keys = Keys(control.KeyDown,control.KeyUp,remember)
-    let mouse = Mouse(control.MouseLeftButtonDown, control.MouseLeftButtonUp, remember)
+    let mouse = Mouse(screen, control.MouseLeftButtonDown, control.MouseLeftButtonUp, remember)
 
     let particles = Particles(screen.Children, width, height)
     let missiles = Weapons(screen.Children,height)
