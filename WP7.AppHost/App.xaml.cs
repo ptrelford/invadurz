@@ -28,6 +28,8 @@ namespace WindowsPhoneAppHost
             // Standard Silverlight initialization
             InitializeComponent();
 
+            this.ApplicationLifetimeObjects.Add(new XNAFrameworkDispatcherService());
+
             app = new WindowsPhoneApp.App(this);
         }
     }

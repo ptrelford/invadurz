@@ -35,21 +35,18 @@ type GameControl () as control =
 
     let playMedia name =
         #if SILVERLIGHT
-        let me = MediaElement(AutoPlay=true)
-        me.Source <- Uri("/" + name, UriKind.Relative)
-        add me
-        me.CurrentStateChanged
-        |> Observable.filter (fun _  -> me.CurrentState = Media.MediaElementState.Paused)
-        |> Observable.run (fun _ -> remove me)
+        let info = System.Windows.Application.GetResourceStream(Uri(name + ".wav", UriKind.Relative))
+        let effect = Microsoft.Xna.Framework.Audio.SoundEffect.FromStream(info.Stream)
+        effect.Play() |> ignore
         #else
         let player = System.Windows.Media.MediaPlayer()
-        player.Open(Uri(name, UriKind.Relative))
+        player.Open(Uri(name + ".mp3", UriKind.Relative))
         player.Play()
         #endif
 
-    let onFire () = playMedia "shoot.mp3"
-    let onKill () = playMedia "invaderkilled.mp3"
-    let onExplode () = playMedia "explosion.mp3"
+    let onFire () = playMedia "shoot"
+    let onKill () = playMedia "invaderkilled"
+    let onExplode () = playMedia "explosion"
 
     let layout = Grid()
     do  layout.Children.Add screen |> ignore
