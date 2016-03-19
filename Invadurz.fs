@@ -27,9 +27,8 @@ type GameControl () as control =
         disposables <- []
 
     let width, height = 512.0, 384.0
-    do  control.Width <- width; control.Height <- height
-
     let screen = Canvas(Background=skyBrush)
+    do  screen.Width <- width; screen.Height <- height
     let add (x:#UIElement) = screen.Children.Add x |> ignore
     let remove (x:#UIElement) = screen.Children.Remove x |> ignore
 
@@ -49,11 +48,23 @@ type GameControl () as control =
     let onExplode () = playMedia "explosion"
 
     let layout = Grid()
+    do  layout.RowDefinitions.Add(RowDefinition(Height=GridLength(height)))
+    do  layout.RowDefinitions.Add(RowDefinition())
+    do  layout.ColumnDefinitions.Add(ColumnDefinition())
+    do  layout.ColumnDefinitions.Add(ColumnDefinition(Width=GridLength(width)))
+    do  layout.ColumnDefinitions.Add(ColumnDefinition())
+    let left = Button(Content="<",Width=96.0, Height=80.0)
+    do  Grid.SetColumn(screen,1)
     do  layout.Children.Add screen |> ignore
+    let right = Button(Content=">", Width=96.0, Height=80.0)
+    do  Grid.SetColumn(right,2)
+    let fire = Button(Content="Fire", Width=256.0, Height=80.0)
+    do  Grid.SetColumn(fire,1)
+    do  Grid.SetRow(fire,1)
     do  control.Content <- layout
 
     let keys = Keys(control.KeyDown,control.KeyUp,remember)
-    let mouse = Mouse(screen, control.MouseLeftButtonDown, control.MouseLeftButtonUp, remember)
+    let mouse = Mouse(screen, screen.MouseLeftButtonDown, screen.MouseLeftButtonUp, remember)
 
     let particles = Particles(screen.Children, width, height)
     let missiles = Weapons(screen.Children,height)
@@ -93,8 +104,15 @@ type GameControl () as control =
         bombs.Update(bunkers.HitTest)
         particles.Update()
 
+    let buttonActions () =
+        set [
+            if left.IsPressed then yield Action.Left
+            if right.IsPressed then yield Action.Right
+            if fire.IsPressed then yield Action.Fire
+        ]
+
     let getActions () =
-        keys.Actions + mouse.Actions cannon.X
+        keys.Actions + mouse.Actions cannon.X + buttonActions ()
 
     let play () =
         getActions() |> cannon.Update
@@ -126,6 +144,7 @@ type GameControl () as control =
                 lives.Value <- lives.Value - 1
                 remove cannon.Control
                 let mess = createMessage "OVERRUN"
+                Grid.SetColumn(mess,1)
                 layout.Children.Add mess |> ignore
                 for i = 1 to 50 do updateScreen(); yield()
                 layout.Children.Remove mess |> ignore
@@ -134,19 +153,28 @@ type GameControl () as control =
                     add cannon.Control
             elif sheet.Aliens.Length = 0 then
                 let mess = createMessage "COMPLETED"
+                Grid.SetColumn(mess,1)
                 layout.Children.Add mess |> ignore
                 for i = 1 to 100 do updateScreen(); yield()
                 layout.Children.Remove mess |> ignore
                 sheet.Renew()
+
         }
 
     let updateLoop () = seq {
         while true do
+            layout.Children.Add(left) |> ignore
+            layout.Children.Add(right) |> ignore
+            layout.Children.Add(fire) |> ignore
             yield! game ()
+            layout.Children.Remove(left) |> ignore
+            layout.Children.Remove(right) |> ignore
+            layout.Children.Remove(fire) |> ignore
             if score.Value > highScore.Value then
                 highScore.Value <- score.Value
                 settings.["HighScore"] <- highScore.Value
             let mess = createMessage "GAME OVER"
+            Grid.SetColumn(mess,1)
             layout.Children.Add mess |> ignore
             for i = 1 to 100 do updateScreen(); yield()
             while not (getActions() |> Set.contains Fire) do yield()
@@ -167,6 +195,7 @@ type GameControl () as control =
         timer.Start()
 
     do  let mess = createMessage "Click to Start"
+        Grid.SetColumn(mess,1)
         layout.Children.Add mess |> ignore
         control.MouseLeftButtonUp
         |> Observable.subscribe (fun _ ->
